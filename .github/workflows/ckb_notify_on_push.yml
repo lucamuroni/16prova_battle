@@ -1,0 +1,26 @@
+name: Notify on Push to Main
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push events to the main branch
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest  # Specifies the runner environment
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2  # Checks out the repository under $GITHUB_WORKSPACE
+
+      - name: Get Commit ID
+        id: get_commit  # Sets an ID for referencing output variables
+        run: echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV  # Gets the latest commit ID and sets it as an environment variable
+
+      - name: Notify Example.com
+        run: |
+          curl -X POST https://example.com/submit \
+          -H "Content-Type: application/json" \
+          -d '{"commit_id": "${{ env.COMMIT_ID }}", "team_token": "${{ secrets.TEAM_TOKEN }}"}'
+        env:
+          TEAM_TOKEN: ${{ secrets.TEAM_TOKEN }}  # Fetches the team_token from GitHub Secrets
